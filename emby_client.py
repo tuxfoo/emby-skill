@@ -13,9 +13,9 @@ DOWNLOAD_URL = "/Download"
 ITEMS_ARTIST_KEY = "ArtistIds"
 ITEMS_PARENT_ID_KEY = "ParentId"
 ITEMS_URL = "/Items"
-ITEMS_ALBUMS_URL = ITEMS_URL + "/?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=MusicAlbum&Recursive=true&" + ITEMS_ARTIST_KEY + "="
-ITEMS_SONGS_BY_ARTIST_URL = ITEMS_URL + "/?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Audio&Recursive=true&" + ITEMS_ARTIST_KEY + "="
-ITEMS_SONGS_BY_ALBUM_URL = ITEMS_URL + "/?SortBy=IndexNumber&" + ITEMS_PARENT_ID_KEY + "="
+ITEMS_ALBUMS_URL = ITEMS_URL + "?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=MusicAlbum&Recursive=true&" + ITEMS_ARTIST_KEY + "="
+ITEMS_SONGS_BY_ARTIST_URL = ITEMS_URL + "?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Audio&Recursive=true&" + ITEMS_ARTIST_KEY + "="
+ITEMS_SONGS_BY_ALBUM_URL = ITEMS_URL + "?SortBy=IndexNumber&" + ITEMS_PARENT_ID_KEY + "="
 LIMIT = "&Limit="
 SERVER_INFO_URL = "/System/Info"
 SERVER_INFO_PUBLIC_URL = SERVER_INFO_URL + "/Public"
@@ -25,7 +25,7 @@ AUTH_PASSWORD_KEY = "Pw"
 
 # query param constants
 AUDIO_STREAM = "universal"
-API_KEY = "api_key="
+API_KEY = "api_key=7a6b02d203c74ab9a1be2ca65897004c"
 
 
 class PublicEmbyClient(object):
@@ -99,12 +99,11 @@ class EmbyClient(PublicEmbyClient):
         headers = {"X-Emby-Authorization": media_browser_header}
         if self.auth and self.auth.token:
             headers["X-Emby-Token"] = self.auth.token
-
         return headers
 
     def search(self, query, media_types=[]):
 
-        query_params = '?SearchTerm={0}'.format(query)
+        query_params = '?searchTerm={0}'.format(query)
 
         types = None
         for type in media_types:
@@ -114,34 +113,39 @@ class EmbyClient(PublicEmbyClient):
             types = types[:len(types) - 1]
             query_params = query_params + '&IncludeItemTypes={0}'.format(types)
 
-        self.log.log(20, query_params)
         return self._get(SEARCH_HINTS_URL + query_params)
+        #return self._get(SEARCH_HINTS_URL + query_params)
 
     def instant_mix(self, item_id):
         # userId query param is required even though its not
         # required in swagger
         # https://emby.media/community/index.php?/
         # topic/50760-instant-mix-api-value-cannot-be-null-error/
-        instant_item_mix = '/Items/{0}/InstantMix?userId={1}'\
+        instant_item_mix = '/Items/{0}/InstantMix?userId={1}&Limit=200'\
             .format(item_id, self.auth.user_id)
         return self._get(instant_item_mix)
 
     def get_song_file(self, song_id):
-        url = '{0}{1}/{2}/{3}?userId={4}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
+        #url = '{0}{1}/{2}/{3}?userId={4}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
+        """
             .format(self.host, SONG_FILE_URL,
                     song_id, AUDIO_STREAM, self.auth.user_id)
+        """
+        url = '{0}{1}/{2}{3}?{4}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
+            .format(self.host, ITEMS_URL,
+                    song_id, DOWNLOAD_URL, API_KEY)
         return url
 
     def get_albums_by_artist(self, artist_id):
-        url = ITEMS_ALBUMS_URL + str(artist_id)
+        url = "/Users/" + self.auth.user_id + ITEMS_ALBUMS_URL + str(artist_id)
         return self._get(url)
 
     def get_songs_by_album(self, album_id):
-        url = ITEMS_SONGS_BY_ALBUM_URL + str(album_id)
+        url = "/Users/" + self.auth.user_id + ITEMS_SONGS_BY_ALBUM_URL + str(album_id)
         return self._get(url)
 
     def get_songs_by_artist(self, artist_id, limit=None):
-        url = ITEMS_SONGS_BY_ARTIST_URL + str(artist_id)
+        url = "/Users/" + self.auth.user_id + ITEMS_SONGS_BY_ARTIST_URL + str(artist_id)
         if limit:
             url = url + LIMIT+str(limit)
         return self._get(url)
