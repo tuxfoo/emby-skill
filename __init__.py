@@ -4,39 +4,39 @@ from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
 from mycroft.skills.audioservice import AudioService
 from mycroft.api import DeviceApi
 
-from .emby_croft import EmbyCroft
+from .jellyfin_croft import JellyfinCroft
 
 
-class Emby(CommonPlaySkill):
+class Jellyfin(CommonPlaySkill):
 
     def __init__(self):
         super().__init__()
         self._setup = False
         self.audio_service = None
-        self.emby_croft = None
+        self.jellyfin_croft = None
         self.device_id = hashlib.md5(
-            ('Emby'+DeviceApi().identity.uuid).encode())\
+            ('Jellyfin'+DeviceApi().identity.uuid).encode())\
             .hexdigest()
 
     def initialize(self):
         pass
 
-    @intent_file_handler('emby.intent')
-    def handle_emby(self, message):
+    @intent_file_handler('jellyfin.intent')
+    def handle_jellyfin(self, message):
 
         self.log.log(20, message.data)
 
-        # first thing is connect to emby or bail
-        if not self.connect_to_emby():
+        # first thing is connect to jellyfin or bail
+        if not self.connect_to_jellyfin():
             self.speak_dialog('configuration_fail')
             return
 
         # determine intent
-        intent, intent_type = EmbyCroft.determine_intent(message.data)
+        intent, intent_type = JellyfinCroft.determine_intent(message.data)
 
         songs = []
         try:
-            songs = self.emby_croft.handle_intent(intent, intent_type)
+            songs = self.jellyfin_croft.handle_intent(intent, intent_type)
         except Exception as e:
             self.log.log(20, e)
             self.speak_dialog('play_fail', {"media": intent})
@@ -53,7 +53,7 @@ class Emby(CommonPlaySkill):
     def speak_playing(self, media):
         data = dict()
         data['media'] = media
-        self.speak_dialog('emby', data)
+        self.speak_dialog('jellyfin', data)
 
     @intent_file_handler('diagnostic.intent')
     def handle_diagnostic(self, message):
@@ -61,9 +61,9 @@ class Emby(CommonPlaySkill):
         self.log.log(20, message.data)
         self.speak_dialog('diag_start')
 
-        # connec to emby for diagnostics
-        self.connect_to_emby(diagnostic=True)
-        connection_success, info = self.emby_croft.diag_public_server_info()
+        # connec to jellyfin for diagnostics
+        self.connect_to_jellyfin(diagnostic=True)
+        connection_success, info = self.jellyfin_croft.diag_public_server_info()
 
         if connection_success:
             self.speak_dialog('diag_public_info_success', info)
@@ -73,7 +73,7 @@ class Emby(CommonPlaySkill):
             self.speak_dialog('diag_stop')
             return
 
-        if not self.connect_to_emby():
+        if not self.connect_to_jellyfin():
             self.speak_dialog('diag_auth_fail')
             self.speak_dialog('diag_stop')
             return
@@ -105,12 +105,13 @@ class Emby(CommonPlaySkill):
                             optional data(dict))
                      or None if no match was found.
         """
-        # first thing is connect to emby or bail
-        if not self.connect_to_emby():
+        # first thing is connect to jellyfin or bail
+        if not self.connect_to_jellyfin():
             return None
 
+        self.log.log(20, "The Phrase:")
         self.log.log(20, phrase)
-        match_type, songs = self.emby_croft.parse_common_phrase(phrase)
+        match_type, songs = self.jellyfin_croft.parse_common_phrase(phrase)
 
         if match_type and songs:
             match_level = None
@@ -140,7 +141,7 @@ class Emby(CommonPlaySkill):
         else:
             return None
 
-    def connect_to_emby(self, diagnostic=False):
+    def connect_to_jellyfin(self, diagnostic=False):
         """
         Attempts to connect to the server based on the config
         if diagnostic is False an attempt to auth is also made
@@ -150,16 +151,16 @@ class Emby(CommonPlaySkill):
         """
         auth_success = False
         try:
-            self.emby_croft = EmbyCroft(
+            self.jellyfin_croft = JellyfinCroft(
                 self.settings["hostname"] + ":" + str(self.settings["port"]),
                 self.settings["username"], self.settings["password"],
                 self.device_id, diagnostic)
             auth_success = True
         except Exception as e:
-            self.log.log(20, "failed to connect to emby, error: {0}".format(str(e)))
+            self.log.log(20, "failed to connect to jellyfin, error: {0}".format(str(e)))
 
         return auth_success
 
 
 def create_skill():
-    return Emby()
+    return Jellyfin()

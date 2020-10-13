@@ -8,10 +8,10 @@ import json
 try:
     # this import works when installing/running the skill
     # note the relative '.'
-    from .emby_client import EmbyClient, MediaItemType, EmbyMediaItem, PublicEmbyClient
+    from .jellyfin_client import JellyfinClient, MediaItemType, JellyfinMediaItem, PublicJellyfinClient
 except (ImportError, SystemError):
     # when running unit tests the '.' from above fails so we exclude it
-    from emby_client import EmbyClient, MediaItemType, EmbyMediaItem, PublicEmbyClient
+    from jellyfin_client import JellyfinClient, MediaItemType, JellyfinMediaItem, PublicJellyfinClient
 
 class IntentType(Enum):
     MEDIA = "media"
@@ -28,19 +28,19 @@ class IntentType(Enum):
                 return item_type
 
 
-class EmbyCroft(object):
+class JellyfinCroft(object):
 
     def __init__(self, host, username, password, client_id='12345', diagnostic=False):
-        self.host = EmbyCroft.normalize_host(host)
+        self.host = JellyfinCroft.normalize_host(host)
         self.log = logging.getLogger(__name__)
         self.version = "UNKNOWN"
         self.set_version()
         if not diagnostic:
-            self.client = EmbyClient(
+            self.client = JellyfinClient(
                 self.host, username, password,
-                device="Mycroft", client="Emby Skill", client_id=client_id, version=self.version)
+                device="Mycroft", client="Jellyfin Skill", client_id=client_id, version=self.version)
         else:
-            self.client = PublicEmbyClient(self.host, client_id=client_id)
+            self.client = PublicJellyfinClient(self.host, client_id=client_id)
 
 
     @staticmethod
@@ -108,7 +108,7 @@ class EmbyCroft(object):
 
     def search_artist(self, artist):
         """
-        Helper method to just search Emby for an artist
+        Helper method to just search Jellyfin for an artist
         :param artist:
         :return:
         """
@@ -116,7 +116,7 @@ class EmbyCroft(object):
 
     def search_album(self, artist):
         """
-        Helper method to just search Emby for an album
+        Helper method to just search Jellyfin for an album
         :param album:
         :return:
         """
@@ -124,7 +124,7 @@ class EmbyCroft(object):
 
     def search_song(self, song):
         """
-        Helper method to just search Emby for songs
+        Helper method to just search Jellyfin for songs
         :param song:
         :return:
         """
@@ -132,7 +132,7 @@ class EmbyCroft(object):
 
     def search_playlist(self, playlist):
         """
-        Helper method to search Emby for a named playlist
+        Helper method to search Jellyfin for a named playlist
 
         :param playlist:
         :return:
@@ -141,25 +141,25 @@ class EmbyCroft(object):
 
     def search(self, query, include_media_types=[]):
         """
-        Searches Emby from a given query
+        Searches Jellyfin from a given query
         :param query:
         :param include_media_types:
         :return:
         """
         response = self.client.search(query, include_media_types)
-        search_items = EmbyCroft.parse_search_hints_from_response(response)
-        return EmbyMediaItem.from_list(search_items)
+        search_items = JellyfinCroft.parse_search_hints_from_response(response)
+        return JellyfinMediaItem.from_list(search_items)
 
     def get_instant_mix_songs(self, item_id):
         """
-        Requests an instant mix from an Emby item id
+        Requests an instant mix from an Jellyfin item id
         and returns song uris to be played by the Audio Service
         :param item_id:
         :return:
         """
         response = self.client.instant_mix(item_id)
-        queue_items = EmbyMediaItem.from_list(
-            EmbyCroft.parse_response(response))
+        queue_items = JellyfinMediaItem.from_list(
+            JellyfinCroft.parse_response(response))
 
         song_uris = []
         for item in queue_items:
@@ -215,8 +215,8 @@ class EmbyCroft(object):
         return self.client.get_server_info()
 
     def convert_response_to_playable_songs(self, item_query_response):
-        queue_items = EmbyMediaItem.from_list(
-            EmbyCroft.parse_response(item_query_response))
+        queue_items = JellyfinMediaItem.from_list(
+            JellyfinCroft.parse_response(item_query_response))
         return self.convert_to_playable_songs(queue_items)
 
     def convert_to_playable_songs(self, songs):
@@ -271,7 +271,7 @@ class EmbyCroft(object):
 
     def parse_common_phrase(self, phrase: str):
         """
-        Attempts to match emby items with phrase
+        Attempts to match jellyfin items with phrase
         :param phrase:
         :return:
         """
@@ -353,7 +353,7 @@ class EmbyCroft(object):
         try:
             response = self.get_server_info_public()
         except Exception as e:
-            details = 'Error occurred when attempting to connect to the Emby server. Error: ' + str(e)
+            details = 'Error occurred when attempting to connect to the Jellyfin server. Error: ' + str(e)
             self.log.log(20, details)
             server_info['Error'] = details
             return connection_success, server_info

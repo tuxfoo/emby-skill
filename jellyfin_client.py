@@ -25,18 +25,18 @@ AUTH_PASSWORD_KEY = "Pw"
 
 # query param constants
 AUDIO_STREAM = "universal"
-API_KEY = "api_key=7a6b02d203c74ab9a1be2ca65897004c"
+API_KEY = "api_key=1d08c80566094a4c871a3502661a71b8"
 
 
-class PublicEmbyClient(object):
+class PublicJellyfinClient(object):
     """
-    Handles the publically exposed emby endpoints
+    Handles the publically exposed jellyfin endpoints
 
     """
 
     def __init__(self, host, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
         """
-        Sets up the connection to the Emby server
+        Sets up the connection to the Jellyfin server
         :param host:
         """
         self.log = logging.getLogger(__name__)
@@ -51,15 +51,15 @@ class PublicEmbyClient(object):
         return requests.get(self.host + SERVER_INFO_PUBLIC_URL)
 
 
-class EmbyClient(PublicEmbyClient):
+class JellyfinClient(PublicJellyfinClient):
     """
-    Handles communication to the Emby server
+    Handles communication to the Jellyfin server
 
     """
 
     def __init__(self, host, username, password, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
         """
-        Sets up the connection to the Emby server
+        Sets up the connection to the Jellyfin server
         :param host:
         :param username:
         :param password:
@@ -71,7 +71,7 @@ class EmbyClient(PublicEmbyClient):
 
     def _auth_by_user(self, username, password):
         """
-        Authenticates to emby via username and password
+        Authenticates to jellyfin via username and password
 
         :param username:
         :param password:
@@ -81,11 +81,11 @@ class EmbyClient(PublicEmbyClient):
             {AUTH_USERNAME_KEY: username, AUTH_PASSWORD_KEY: password}
         response = self._post(AUTHENTICATE_BY_NAME_URL, auth_payload)
         assert response.status_code is 200
-        return EmbyAuthorization.from_response(response)
+        return JellyfinAuthorization.from_response(response)
 
     def get_headers(self):
         """
-        Returns specific Emby headers including auth token if available
+        Returns specific Jellyfin headers including auth token if available
 
         :return:
         """
@@ -181,7 +181,7 @@ class EmbyClient(PublicEmbyClient):
         return requests.get(self.host + url, headers=self.get_headers())
 
 
-class EmbyAuthorization(object):
+class JellyfinAuthorization(object):
 
     def __init__(self, user_id, token):
         self.user_id = user_id
@@ -191,20 +191,20 @@ class EmbyAuthorization(object):
     def from_response(cls, response):
         """
         Helper method for converting a response into
-        an Emby Authorization
+        an Jellyfin Authorization
 
         :param response:
         :return:
         """
         auth_content = response.json()
-        return EmbyAuthorization(
+        return JellyfinAuthorization(
             auth_content["User"]["Id"], auth_content["AccessToken"])
 
 
-class EmbyMediaItem(object):
+class JellyfinMediaItem(object):
 
     """
-    Stripped down representation of a media item in Emby
+    Stripped down representation of a media item in Jellyfin
 
     """
 
@@ -216,13 +216,13 @@ class EmbyMediaItem(object):
     @classmethod
     def from_item(cls, item):
         media_item_type = MediaItemType.from_string(item["Type"])
-        return EmbyMediaItem(item["Id"], item["Name"], media_item_type)
+        return JellyfinMediaItem(item["Id"], item["Name"], media_item_type)
 
     @staticmethod
     def from_list(items):
         media_items = []
         for item in items:
-            media_items.append(EmbyMediaItem.from_item(item))
+            media_items.append(JellyfinMediaItem.from_item(item))
 
         return media_items
 
