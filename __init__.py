@@ -3,6 +3,7 @@ from mycroft import intent_file_handler
 from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
 from mycroft.skills.audioservice import AudioService
 from mycroft.api import DeviceApi
+from random import shuffle
 
 from .jellyfin_croft import JellyfinCroft
 
@@ -125,12 +126,14 @@ class Jellyfin(CommonPlaySkill):
 
                 self.log.log(20, 'match level' + str(match_level))
 
+            shuffle(songs)    
             song_data = dict()
             song_data[phrase] = songs
 
             self.log.log(20, "First 3 item urls returned")
             max_songs_to_log = 3
             songs_logged = 0
+
             for song in songs:
                 self.log.log(20, song)
                 songs_logged = songs_logged + 1
