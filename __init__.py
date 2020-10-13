@@ -94,6 +94,7 @@ class Jellyfin(CommonPlaySkill):
         """
         # setup audio service
         self.audio_service = AudioService(self.bus)
+        self.speak_playing(phrase)
         self.audio_service.play(data[phrase])
 
     def CPS_match_query_phrase(self, phrase):
@@ -126,7 +127,7 @@ class Jellyfin(CommonPlaySkill):
 
                 self.log.log(20, 'match level' + str(match_level))
 
-            shuffle(songs)    
+            shuffle(songs)
             song_data = dict()
             song_data[phrase] = songs
 
