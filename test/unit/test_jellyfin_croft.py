@@ -34,7 +34,7 @@ class TestJellyfinCroft(object):
             auth_server_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["auth_server_response"]
             response = MockResponse(200, auth_server_response)
             MockRequestsPost.return_value = response
-            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
             assert jellyfin_croft.client.auth.token is auth_server_response["AccessToken"]
             assert jellyfin_croft.client.auth.user_id is auth_server_response["User"]["Id"]
@@ -49,7 +49,7 @@ class TestJellyfinCroft(object):
             album = "This is how the wind shifts"
             response = MockResponse(200, auth_server_response)
             MockRequestsPost.return_value = response
-            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
             with mock.patch('requests.get') as MockRequestsGet:
                 responses = [MockResponse(200, search_response), MockResponse(200, get_songs_response)]
@@ -65,7 +65,7 @@ class TestJellyfinCroft(object):
             auth_server_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["auth_server_response"]
             response = MockResponse(200, auth_server_response)
             MockRequestsPost.return_value = response
-            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
             for phrase in TestJellyfinCroft.common_phrases:
                 match_type = TestJellyfinCroft.common_phrases[phrase]["match_type"]
@@ -105,7 +105,7 @@ class TestJellyfinCroft(object):
             auth_server_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["auth_server_response"]
             response = MockResponse(200, auth_server_response)
             MockRequestsPost.return_value = response
-            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
             search_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["artist_search"][
                 "search_response"]
@@ -126,7 +126,7 @@ class TestJellyfinCroft(object):
             auth_server_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["auth_server_response"]
             response = MockResponse(200, auth_server_response)
             MockRequestsPost.return_value = response
-            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
             search_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["album_search"][
                 "search_response"]
@@ -147,7 +147,7 @@ class TestJellyfinCroft(object):
             auth_server_response = TestJellyfinCroft.mocked_responses["jellyfin"]["3.5.2.0"]["auth_server_response"]
             response = MockResponse(200, auth_server_response)
             MockRequestsPost.return_value = response
-            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+            jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
             search_response = TestJellyfinCroft.mocked_responses["jellyfin"]["4.2.1.0"]["playlist_search"][
                 "search_response"]
@@ -165,7 +165,7 @@ class TestJellyfinCroft(object):
     @pytest.mark.mocked
     def test_diag_public_server_info_happy_path_mock(self):
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, diagnostic=True)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none", diagnostic=True)
 
         with mock.patch('requests.get') as MockRequestsGet:
             public_info_response = TestJellyfinCroft.mocked_responses["jellyfin"]["4.1.1.0"]["public_info"]
@@ -179,7 +179,7 @@ class TestJellyfinCroft(object):
     @pytest.mark.mocked
     def test_diag_public_server_info_bad_host_mock(self):
 
-        jellyfin_croft = JellyfinCroft('badhostHere', USERNAME, PASSWORD, diagnostic=True)
+        jellyfin_croft = JellyfinCroft('badhostHere', USERNAME, PASSWORD, "none", diagnostic=True)
 
         with mock.patch('requests.get') as MockRequestsGet:
             MockRequestsGet.side_effect = Exception('Fail')
@@ -202,13 +202,13 @@ class TestJellyfinCroft(object):
 
     @pytest.mark.live
     def test_auth(self):
-        jellyfin_client = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_client = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
         assert jellyfin_client.client.auth is not None
 
     @pytest.mark.live
     def test_instant_mix_live(self):
         album = "This is how the wind shifts"
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
         songs = jellyfin_croft.instant_mix_for_media(album)
         assert songs is not None
@@ -217,7 +217,7 @@ class TestJellyfinCroft(object):
     def test_handle_intent_by_artist(self):
         artist = "dance gavin dance"
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
         songs = jellyfin_croft.handle_intent(artist, IntentType.ARTIST)
         assert songs is not None
 
@@ -225,7 +225,7 @@ class TestJellyfinCroft(object):
     def test_handle_intent_by_album(self):
         album = "deadweight"
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
         songs = jellyfin_croft.handle_intent(album, IntentType.ALBUM)
         assert songs is not None
 
@@ -233,7 +233,7 @@ class TestJellyfinCroft(object):
     def test_handle_intent_by_playlist(self):
         playlist = "xmas music"
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
         songs = jellyfin_croft.handle_intent(playlist, IntentType.PLAYLIST)
         assert songs is not None
 
@@ -241,7 +241,7 @@ class TestJellyfinCroft(object):
     def test_search_for_song(self):
         song = "And I Told Them I Invented Times New Roman"
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
         songs = jellyfin_croft.search_song(song)
         assert len(songs) == 3
         for song_item in songs:
@@ -252,7 +252,7 @@ class TestJellyfinCroft(object):
     @pytest.mark.live
     def test_parsing_common_phrase(self):
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none")
 
         for phrase in TestJellyfinCroft.common_phrases:
             match_type, songs = jellyfin_croft.parse_common_phrase(phrase)
@@ -263,7 +263,7 @@ class TestJellyfinCroft(object):
     @pytest.mark.live
     def test_diag_public_server_info_happy_path(self):
 
-        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, diagnostic=True)
+        jellyfin_croft = JellyfinCroft(HOST, USERNAME, PASSWORD, "none", diagnostic=True)
         connection_success, info = jellyfin_croft.diag_public_server_info()
 
         assert connection_success
@@ -272,7 +272,7 @@ class TestJellyfinCroft(object):
     @pytest.mark.live
     def test_diag_public_server_info_bad_host(self):
 
-        jellyfin_croft = JellyfinCroft('badhostHere', USERNAME, PASSWORD, diagnostic=True)
+        jellyfin_croft = JellyfinCroft('badhostHere', USERNAME, PASSWORD, "none", diagnostic=True)
         connection_success, info = jellyfin_croft.diag_public_server_info()
 
         assert not connection_success

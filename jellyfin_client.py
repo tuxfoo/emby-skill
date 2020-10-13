@@ -25,7 +25,7 @@ AUTH_PASSWORD_KEY = "Pw"
 
 # query param constants
 AUDIO_STREAM = "universal"
-API_KEY = "api_key=1d08c80566094a4c871a3502661a71b8"
+API_KEY = "api_key="
 
 
 class PublicJellyfinClient(object):
@@ -57,7 +57,7 @@ class JellyfinClient(PublicJellyfinClient):
 
     """
 
-    def __init__(self, host, username, password, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
+    def __init__(self, host, username, password, api_key, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
         """
         Sets up the connection to the Jellyfin server
         :param host:
@@ -68,6 +68,7 @@ class JellyfinClient(PublicJellyfinClient):
         super().__init__(host, device, client, client_id, version)
         self.log = logging.getLogger(__name__)
         self.auth = self._auth_by_user(username, password)
+        self.api_key = api_key
 
     def _auth_by_user(self, username, password):
         """
@@ -131,9 +132,9 @@ class JellyfinClient(PublicJellyfinClient):
             .format(self.host, SONG_FILE_URL,
                     song_id, AUDIO_STREAM, self.auth.user_id)
         """
-        url = '{0}{1}/{2}{3}?{4}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
+        url = '{0}{1}/{2}{3}?{4}{5}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
             .format(self.host, ITEMS_URL,
-                    song_id, DOWNLOAD_URL, API_KEY)
+                    song_id, DOWNLOAD_URL, API_KEY, self.api_key)
         return url
 
     def get_albums_by_artist(self, artist_id):
