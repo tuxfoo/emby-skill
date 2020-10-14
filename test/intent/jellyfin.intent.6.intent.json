@@ -1,8 +1,8 @@
 {
-    "expected_dialog": "emby",
+    "expected_dialog": "jellyfin",
     "intent": {
         "playlist": "anyPlaylistHere"
     },
-    "intent_type": "emby.intent",
-    "utterance": "play playlist anyPlaylistHere from mb"
+    "intent_type": "jellyfin.intent",
+    "utterance": "play playlist anyPlaylistHere from jelly fin"
 }

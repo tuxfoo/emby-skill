@@ -1,8 +1,8 @@
 {
-    "expected_dialog": "emby",
+    "expected_dialog": "jellyfin",
     "intent": {
         "artist": "from first to last"
     },
-    "intent_type": "emby.intent",
-    "utterance": "play artist from first to last from mb"
+    "intent_type": "jellyfin.intent",
+    "utterance": "play artist from first to last from jelly fin"
 }

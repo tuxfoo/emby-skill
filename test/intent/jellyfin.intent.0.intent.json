@@ -1,8 +1,8 @@
 {
-    "expected_dialog": "emby",
+    "expected_dialog": "jellyfin",
     "intent": {
         "media": "thrice"
     },
-    "intent_type": "emby.intent",
-    "utterance": "play thrice from mb"
+    "intent_type": "jellyfin.intent",
+    "utterance": "play thrice from jelly fin"
 }

@@ -1,8 +1,8 @@
 {
-    "expected_dialog": "emby",
+    "expected_dialog": "jellyfin",
     "intent": {
         "artist": "a day to remember"
     },
-    "intent_type": "emby.intent",
-    "utterance": "play artist a day to remember from emby"
+    "intent_type": "jellyfin.intent",
+    "utterance": "play artist a day to remember from jelly fin"
 }
