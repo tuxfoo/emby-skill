@@ -25,7 +25,7 @@ class Jellyfin(CommonPlaySkill):
     @intent_file_handler('jellyfin.intent')
     def handle_jellyfin(self, message):
 
-        self.log.log(20, message.data)
+        self.log.info(message.data)
 
         # first thing is connect to jellyfin or bail
         if not self.connect_to_jellyfin():
@@ -39,11 +39,11 @@ class Jellyfin(CommonPlaySkill):
         try:
             songs = self.jellyfin_croft.handle_intent(intent, intent_type)
         except Exception as e:
-            self.log.log(20, e)
+            self.log.info(e)
             self.speak_dialog('play_fail', {"media": intent})
 
         if not songs or len(songs) < 1:
-            self.log.log(20, 'No songs Returned')
+            self.log.info('No songs Returned')
             self.speak_dialog('play_fail', {"media": intent})
         else:
             # setup audio service and play
@@ -59,7 +59,7 @@ class Jellyfin(CommonPlaySkill):
     @intent_file_handler('diagnostic.intent')
     def handle_diagnostic(self, message):
 
-        self.log.log(20, message.data)
+        self.log.info(message.data)
         self.speak_dialog('diag_start')
 
         # connec to jellyfin for diagnostics
@@ -111,32 +111,32 @@ class Jellyfin(CommonPlaySkill):
         if not self.connect_to_jellyfin():
             return None
 
-        self.log.log(20, "The Phrase:")
-        self.log.log(20, phrase)
+        self.log.info("The Phrase:")
+        self.log.info(phrase)
         match_type, songs = self.jellyfin_croft.parse_common_phrase(phrase)
 
         if match_type and songs:
             match_level = None
             if match_type is not None:
-                self.log.log(20, 'Found match of type: ' + match_type)
+                self.log.info('Found match of type: ' + match_type)
 
                 if match_type == 'song' or match_type == 'album':
                     match_level = CPSMatchLevel.TITLE
                 elif match_type == 'artist':
                     match_level = CPSMatchLevel.ARTIST
 
-                self.log.log(20, 'match level' + str(match_level))
+                self.log.info('match level' + str(match_level))
 
             shuffle(songs)
             song_data = dict()
             song_data[phrase] = songs
 
-            self.log.log(20, "First 3 item urls returned")
+            self.log.info("First 3 item urls returned")
             max_songs_to_log = 3
             songs_logged = 0
 
             for song in songs:
-                self.log.log(20, song)
+                self.log.info(song)
                 songs_logged = songs_logged + 1
                 if songs_logged >= max_songs_to_log:
                     break
@@ -162,7 +162,7 @@ class Jellyfin(CommonPlaySkill):
                 self.device_id, diagnostic)
             auth_success = True
         except Exception as e:
-            self.log.log(20, "failed to connect to jellyfin, error: {0}".format(str(e)))
+            self.log.info("failed to connect to jellyfin, error: {0}".format(str(e)))
 
         return auth_success
 

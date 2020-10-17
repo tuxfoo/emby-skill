@@ -181,7 +181,7 @@ class JellyfinCroft(object):
 
         songs = []
         for item in items:
-            self.log.log(20, 'Instant Mix potential match: ' + item.name)
+            self.log.info('Instant Mix potential match: ' + item.name)
             if len(songs) == 0:
                 songs = self.get_instant_mix_songs(item.id)
             else:
@@ -328,7 +328,7 @@ class JellyfinCroft(object):
         try:
             self.version = subprocess.check_output(["git", "describe", "--always"]).strip().decode()
         except Exception as e:
-            self.log.log(20, "Failed to determine version with error: {}".format(str(e)))
+            self.log.info("Failed to determine version with error: {}".format(str(e)))
 
     @staticmethod
     def normalize_host(host: str):
@@ -354,7 +354,7 @@ class JellyfinCroft(object):
             response = self.get_server_info_public()
         except Exception as e:
             details = 'Error occurred when attempting to connect to the Jellyfin server. Error: ' + str(e)
-            self.log.log(20, details)
+            self.log.info(details)
             server_info['Error'] = details
             return connection_success, server_info
 

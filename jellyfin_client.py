@@ -22,6 +22,13 @@ SERVER_INFO_PUBLIC_URL = SERVER_INFO_URL + "/Public"
 # auth constants
 AUTH_USERNAME_KEY = "Username"
 AUTH_PASSWORD_KEY = "Pw"
+MAX_STREAM_BITRATE = "MaxStreamingBitrate=140000000&"
+AUDIO_CODEC = "AudioCodec=mp3&"
+TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls"
+CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
+JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
+
+
 
 # query param constants
 AUDIO_STREAM = "universal"
@@ -132,9 +139,9 @@ class JellyfinClient(PublicJellyfinClient):
             .format(self.host, SONG_FILE_URL,
                     song_id, AUDIO_STREAM, self.auth.user_id)
         """
-        url = '{0}{1}/{2}{3}?{4}{5}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
-            .format(self.host, ITEMS_URL,
-                    song_id, DOWNLOAD_URL, API_KEY, self.api_key)
+        url = '{0}{1}/{2}/{3}?userId={4}&{5}{6}&{7}DeviceId=none'\
+            .format(self.host, SONG_FILE_URL,
+                    song_id, AUDIO_STREAM, self.auth.user_id, API_KEY, self.api_key, JELLY_ARGS)
         return url
 
     def get_albums_by_artist(self, artist_id):
