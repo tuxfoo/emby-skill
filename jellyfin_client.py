@@ -134,11 +134,6 @@ class JellyfinClient(PublicJellyfinClient):
         return self._get(instant_item_mix)
 
     def get_song_file(self, song_id):
-        #url = '{0}{1}/{2}/{3}?userId={4}&MaxStreamingBitrate=140000000&AudioCodec=mp3'\
-        """
-            .format(self.host, SONG_FILE_URL,
-                    song_id, AUDIO_STREAM, self.auth.user_id)
-        """
         url = '{0}{1}/{2}/{3}?userId={4}&{5}{6}&{7}DeviceId=none'\
             .format(self.host, SONG_FILE_URL,
                     song_id, AUDIO_STREAM, self.auth.user_id, API_KEY, self.api_key, JELLY_ARGS)

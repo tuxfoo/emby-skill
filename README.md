@@ -9,8 +9,20 @@ Stream music from your Jellyfin server using Mycroft! Play all songs by an artis
 This skill supports the common play framework! This means you don't have to specify "Jellyfin" in your intent. For Example
 * "Play The Beatles"
 * "Play artist The Beatles"
+* "Play song Hey Jude"
+* "next song"
+* "pause"
+* "stop"
+* "resume"
 
-At the moment using the intent "from jellyfin" might not always work
+## From Intent
+If you have other music services you can use the from intent
+* "Play artist Blackmore's Night from jelly fin"
+
+## OTHER
+You can ask for the track information.
+* "what song is this"
+This feature does not work with all codecs. It works for flacs but not mp3's.
 
 ## Set up
 Go to https://account.mycroft.ai/skills

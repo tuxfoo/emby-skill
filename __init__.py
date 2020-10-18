@@ -56,6 +56,21 @@ class Jellyfin(CommonPlaySkill):
         data['media'] = media
         self.speak_dialog('jellyfin', data)
 
+    @intent_file_handler('playingsong.intent')
+    def handle_playing(self, message):
+        track = "Unknown"
+        artist = "Unknown"
+        if self.audio_service.is_playing:
+            track = self.audio_service.track_info()['name']
+            artist = self.audio_service.track_info()['artists']
+            if artist != [None]:
+                self.speak_dialog('whatsplaying', {'track' : track, 'artist': artist})
+            else:
+                self.speak_dialog('notrackinfo')
+        else:
+            self.speak_dialog('notplaying')
+
+
     @intent_file_handler('diagnostic.intent')
     def handle_diagnostic(self, message):
 

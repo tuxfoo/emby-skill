@@ -1,4 +1,4 @@
 play {media} from (emby|mv|mb|jelly fin|jelly fan|jelly fen)
-play artist {artist} from (emby|mv|mb|jelly fin|jelly fan|jelly fen)
+play (artist|band) {artist} from (emby|mv|mb|jelly fin|jelly fan|jelly fen)
 play album {album} from (emby|mv|mb|jelly fin|jelly fan|jelly fen)
 play playlist {playlist} from (emby|mv|mb|jelly fin|jelly fan|jelly fen)
