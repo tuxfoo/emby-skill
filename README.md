@@ -5,6 +5,9 @@ This skill is a fork of the emby skill that allows audio playback from a Jellyfi
 ## About
 Stream music from your Jellyfin server using Mycroft! Play all songs by an artist or an instant mix of any artist/album/song in your Jellyfin library.
 
+## Installation
+* mycroft-msm install https://github.com/tuxfoo/jellyfin-skill
+
 ## Common Play Framework
 This skill supports the common play framework! This means you don't have to specify "Jellyfin" in your intent. For Example
 * "Play The Beatles"
