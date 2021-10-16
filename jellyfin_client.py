@@ -23,15 +23,16 @@ SERVER_INFO_PUBLIC_URL = SERVER_INFO_URL + "/Public"
 AUTH_USERNAME_KEY = "Username"
 AUTH_PASSWORD_KEY = "Pw"
 MAX_STREAM_BITRATE = "MaxStreamingBitrate=140000000&"
-AUDIO_CODEC = "AudioCodec=mp3&"
+AUDIO_CODEC = "audioCodec=mp3&"
 TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls"
 CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
-JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
+#JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
+JELLY_ARGS = AUDIO_CODEC
 
 
 
 # query param constants
-AUDIO_STREAM = "universal"
+AUDIO_STREAM = "stream"
 API_KEY = "api_key="
 
 
@@ -111,7 +112,7 @@ class JellyfinClient(PublicJellyfinClient):
 
     def search(self, query, media_types=[]):
 
-        query_params = '?searchTerm={0}'.format(query)
+        query_params = '?{0}{1}&searchTerm={2}'.format(API_KEY, self.api_key, query)
 
         types = None
         for type in media_types:
@@ -121,22 +122,23 @@ class JellyfinClient(PublicJellyfinClient):
             types = types[:len(types) - 1]
             query_params = query_params + '&IncludeItemTypes={0}'.format(types)
 
+        self.log.debug(SEARCH_HINTS_URL + query_params)
         return self._get(SEARCH_HINTS_URL + query_params)
-        #return self._get(SEARCH_HINTS_URL + query_params)
 
     def instant_mix(self, item_id):
         # userId query param is required even though its not
         # required in swagger
         # https://emby.media/community/index.php?/
         # topic/50760-instant-mix-api-value-cannot-be-null-error/
-        instant_item_mix = '/Items/{0}/InstantMix?userId={1}&Limit=200'\
-            .format(item_id, self.auth.user_id)
+        instant_item_mix = '/Items/{0}/InstantMix?{1}{2}&Limit=200'\
+            .format(item_id, API_KEY, self.api_key)
         return self._get(instant_item_mix)
 
     def get_song_file(self, song_id):
-        url = '{0}{1}/{2}/{3}?userId={4}&{5}{6}&{7}DeviceId=none'\
+        url = '{0}{1}/{2}/{3}?{4}{5}&{6}DeviceId=none'\
             .format(self.host, SONG_FILE_URL,
-                    song_id, AUDIO_STREAM, self.auth.user_id, API_KEY, self.api_key, JELLY_ARGS)
+                    song_id, AUDIO_STREAM, API_KEY, self.api_key, JELLY_ARGS)
+        self.log.debug("SONG URL: " + url)
         return url
 
     def get_albums_by_artist(self, artist_id):
