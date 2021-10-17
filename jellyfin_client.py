@@ -27,7 +27,7 @@ AUDIO_CODEC = "audioCodec=mp3&"
 TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls"
 CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
 #JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
-JELLY_ARGS = AUDIO_CODEC
+JELLY_ARGS = AUDIO_CODEC + TRANSCODING_SETTING + CONTAINER
 
 
 
@@ -101,16 +101,12 @@ class JellyfinClient(PublicJellyfinClient):
                                ", DeviceId="+self.client_id +\
                                ", Version="+self.version
         
-        self.log.info("AUTH: ")
-        self.log.info(self.auth)
         if self.auth and self.auth.user_id:
             media_browser_header = \
                 media_browser_header + ", UserId=" + self.auth.user_id
-            self.log.info("auth_id: " + self.auth.user_id)
         headers = {"X-Emby-Authorization": media_browser_header} 
         if self.auth and self.auth.token:
             headers["X-Emby-Token"] = self.auth.token
-            self.log.info("token: " + self.auth.token + " auth_id: " + self.auth.user_id)
         return headers
 
     def search(self, query, media_types=[]):
@@ -159,7 +155,7 @@ class JellyfinClient(PublicJellyfinClient):
         return self._get(url)
 
     def get_songs_by_playlist(self, playlist_id):
-        url = PLAYLIST_URL + "/" + str(playlist_id) + ITEMS_URL
+        url = PLAYLIST_URL + "/" + str(playlist_id) + ITEMS_URL + "?userId=" + self.auth.user_id
         return self._get(url)
 
     def get_all_artists(self):

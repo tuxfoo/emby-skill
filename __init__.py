@@ -35,11 +35,9 @@ class Jellyfin(CommonPlaySkill):
         if not self.connect_to_jellyfin():
             return None
 
-        self.log.info("CPS Phrase:")
-        self.log.info(phrase)
+        self.log.debug("CPS Phrase:")
+        self.log.debug(phrase)
         match_type, songs = self.jellyfin_croft.parse_common_phrase(phrase)
-        self.log.info("CPS Songs:")
-        self.log.debug(songs)
 
         if match_type and songs:
             match_level = None
@@ -55,20 +53,18 @@ class Jellyfin(CommonPlaySkill):
     
             song_data = dict()
             song_data[phrase] = songs
-
+            
             self.log.info("First 3 item urls returned")
             max_songs_to_log = 3
             songs_logged = 0
 
             for song in songs:
-                self.log.info(song)
+                self.log.debug(song)
                 songs_logged = songs_logged + 1
                 if songs_logged >= max_songs_to_log:
                     break
-            self.log.info("MUFFIT OF TEA?")
             return phrase, CPSMatchLevel.TITLE, song_data
         else:
-            self.log.info("NOPE")
             return None
 
     def CPS_start(self, phrase, data):
@@ -133,7 +129,6 @@ class Jellyfin(CommonPlaySkill):
             # setup audio service and play
             self.audio_service = AudioService(self.bus)
             self.speak_playing(intent)
-            self.log.debug(songs, message.data['utterance'])
             self.audio_service.play(songs, message.data['utterance'])
 
 

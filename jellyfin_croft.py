@@ -3,6 +3,7 @@ import subprocess
 from enum import Enum
 from random import shuffle
 from collections import defaultdict
+from mycroft.util.parse import match_one
 import json
 
 try:
@@ -90,6 +91,7 @@ class JellyfinCroft(object):
         elif intent_type == IntentType.PLAYLIST:
             # return songs in playlist
             playlist_items = self.search_playlist(intent)
+            self.log.debug(playlist_items[0].id)
             songs = self.get_songs_by_playlist(playlist_items[0].id)
         return songs
 
