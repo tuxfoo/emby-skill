@@ -16,6 +16,7 @@ class Jellyfin(CommonPlaySkill):
         self._setup = False
         self.audio_service = None
         self.jellyfin_croft = None
+        self.songs = []
         self.device_id = hashlib.md5(
             ('Jellyfin'+DeviceApi().identity.uuid).encode())\
             .hexdigest()
@@ -37,9 +38,9 @@ class Jellyfin(CommonPlaySkill):
 
         self.log.debug("CPS Phrase:")
         self.log.debug(phrase)
-        match_type, songs = self.jellyfin_croft.parse_common_phrase(phrase)
+        match_type, self.songs = self.jellyfin_croft.parse_common_phrase(phrase)
 
-        if match_type and songs:
+        if match_type and self.songs:
             match_level = None
             if match_type != None:
                 self.log.info('Found match of type: ' + match_type)
@@ -48,17 +49,16 @@ class Jellyfin(CommonPlaySkill):
                     match_level = CPSMatchLevel.TITLE
                 elif match_type == 'artist':
                     match_level = CPSMatchLevel.ARTIST
-                    #shuffle(songs)
                 self.log.info('match level :' + str(match_level))
     
             song_data = dict()
-            song_data[phrase] = songs
+            song_data[phrase] = self.songs
             
             self.log.info("First 3 item urls returned")
             max_songs_to_log = 3
             songs_logged = 0
 
-            for song in songs:
+            for song in self.songs:
                 self.log.debug(song)
                 songs_logged = songs_logged + 1
                 if songs_logged >= max_songs_to_log:
@@ -115,22 +115,40 @@ class Jellyfin(CommonPlaySkill):
         # determine intent
         intent, intent_type = JellyfinCroft.determine_intent(message.data)
 
-        songs = []
+        self.songs = []
         try:
-            songs = self.jellyfin_croft.handle_intent(intent, intent_type)
+            self.songs = self.jellyfin_croft.handle_intent(intent, intent_type)
         except Exception as e:
             self.log.info(e)
             self.speak_dialog('play_fail', {"media": intent})
 
-        if not songs or len(songs) < 1:
+        if not self.songs or len(self.songs) < 1:
             self.log.info('No songs Returned')
             self.speak_dialog('play_fail', {"media": intent})
         else:
             # setup audio service and play
             self.audio_service = AudioService(self.bus)
             self.speak_playing(intent)
-            self.audio_service.play(songs, message.data['utterance'])
+            self.audio_service.play(self.songs, message.data['utterance'])
 
+    @intent_file_handler('shuffle.intent')
+    def handle_shuffle(self, message):
+        self.log.info(message.data)
+
+        # first thing is connect to jellyfin or bail
+        if not self.connect_to_jellyfin():
+            self.speak_dialog('configuration_fail')
+            return
+
+        if not self.songs or len(self.songs) < 1:
+            self.log.info('No songs Returned')
+            self.speak_dialog('shuffle_fail')
+        else:
+            # setup audio service and, suffle play
+            shuffle(self.songs)
+            self.audio_service = AudioService(self.bus)
+            self.speak_dialog('shuffle')
+            self.audio_service.play(self.songs, message.data['utterance'])
 
     def speak_playing(self, media):
         data = dict()
