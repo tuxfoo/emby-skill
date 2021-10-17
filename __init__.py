@@ -96,7 +96,6 @@ class Jellyfin(CommonPlaySkill):
             self.jellyfin_croft = JellyfinCroft(
                 self.settings["hostname"] + ":" + str(self.settings["port"]),
                 self.settings["username"], self.settings["password"],
-                self.settings["api_key"],
                 self.device_id, diagnostic)
             auth_success = True
         except Exception as e:

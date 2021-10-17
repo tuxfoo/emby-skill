@@ -20,7 +20,7 @@ LIMIT = "&Limit="
 SERVER_INFO_URL = "/System/Info"
 SERVER_INFO_PUBLIC_URL = SERVER_INFO_URL + "/Public"
 # auth constants
-AUTH_USERNAME_KEY = "Username"
+AUTH_USERNAME_KEY = "username"
 AUTH_PASSWORD_KEY = "Pw"
 MAX_STREAM_BITRATE = "MaxStreamingBitrate=140000000&"
 AUDIO_CODEC = "audioCodec=mp3&"
@@ -33,7 +33,6 @@ JELLY_ARGS = AUDIO_CODEC
 
 # query param constants
 AUDIO_STREAM = "stream"
-API_KEY = "api_key="
 
 
 class PublicJellyfinClient(object):
@@ -65,7 +64,7 @@ class JellyfinClient(PublicJellyfinClient):
 
     """
 
-    def __init__(self, host, username, password, api_key, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
+    def __init__(self, host, username, password, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
         """
         Sets up the connection to the Jellyfin server
         :param host:
@@ -76,7 +75,6 @@ class JellyfinClient(PublicJellyfinClient):
         super().__init__(host, device, client, client_id, version)
         self.log = logging.getLogger(__name__)
         self.auth = self._auth_by_user(username, password)
-        self.api_key = api_key
 
     def _auth_by_user(self, username, password):
         """
@@ -102,17 +100,22 @@ class JellyfinClient(PublicJellyfinClient):
                                ", Device="+self.device +\
                                ", DeviceId="+self.client_id +\
                                ", Version="+self.version
+        
+        self.log.info("AUTH: ")
+        self.log.info(self.auth)
         if self.auth and self.auth.user_id:
             media_browser_header = \
                 media_browser_header + ", UserId=" + self.auth.user_id
-        headers = {"X-Emby-Authorization": media_browser_header}
+            self.log.info("auth_id: " + self.auth.user_id)
+        headers = {"X-Emby-Authorization": media_browser_header} 
         if self.auth and self.auth.token:
             headers["X-Emby-Token"] = self.auth.token
+            self.log.info("token: " + self.auth.token + " auth_id: " + self.auth.user_id)
         return headers
 
     def search(self, query, media_types=[]):
 
-        query_params = '?{0}{1}&searchTerm={2}'.format(API_KEY, self.api_key, query)
+        query_params = '?searchTerm={0}'.format(query)
 
         types = None
         for type in media_types:
@@ -130,14 +133,14 @@ class JellyfinClient(PublicJellyfinClient):
         # required in swagger
         # https://emby.media/community/index.php?/
         # topic/50760-instant-mix-api-value-cannot-be-null-error/
-        instant_item_mix = '/Items/{0}/InstantMix?{1}{2}&Limit=200'\
-            .format(item_id, API_KEY, self.api_key)
+        instant_item_mix = '/Items/{0}/InstantMix?Limit=200'\
+            .format(item_id)
         return self._get(instant_item_mix)
 
     def get_song_file(self, song_id):
-        url = '{0}{1}/{2}/{3}?{4}{5}&{6}DeviceId=none'\
+        url = '{0}{1}/{2}/{3}?{4}DeviceId=none'\
             .format(self.host, SONG_FILE_URL,
-                    song_id, AUDIO_STREAM, API_KEY, self.api_key, JELLY_ARGS)
+                    song_id, AUDIO_STREAM,JELLY_ARGS)
         self.log.debug("SONG URL: " + url)
         return url
 

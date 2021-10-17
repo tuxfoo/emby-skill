@@ -30,14 +30,14 @@ class IntentType(Enum):
 
 class JellyfinCroft(object):
 
-    def __init__(self, host, username, password, api_key, client_id='12345', diagnostic=False):
+    def __init__(self, host, username, password, client_id='12345', diagnostic=False):
         self.host = JellyfinCroft.normalize_host(host)
         self.log = logging.getLogger(__name__)
         self.version = "UNKNOWN"
         self.set_version()
         if not diagnostic:
             self.client = JellyfinClient(
-                self.host, username, password, api_key,
+                self.host, username, password,
                 device="Mycroft", client="Jellyfin Skill", client_id=client_id, version=self.version)
         else:
             self.client = PublicJellyfinClient(self.host, client_id=client_id)
