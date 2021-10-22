@@ -113,10 +113,7 @@ class JellyfinCroft(object):
     def get_meta(self, track_id):
         # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
         track_id = re.search(".*song_id=(.*)", track_id).group(1)
-        self.log.info(track_id)
-        self.log.info(self.meta)
         for item in self.meta:
-            self.log.info(item)
             if item['Id'] == track_id:
                 return item
         return False
@@ -241,7 +238,7 @@ class JellyfinCroft(object):
             JellyfinCroft.parse_response(item_query_response))
         for i in JellyfinCroft.parse_response(item_query_response):
             for x, y in i.items():
-                self.log.info(x + ":" + str(y))
+                self.log.debug(x + ":" + str(y))
         return self.convert_to_playable_songs(queue_items)
 
     def convert_to_playable_songs(self, songs):
@@ -275,7 +272,8 @@ class JellyfinCroft(object):
         removals = ['emby', 'mb']
         media_types = {'artist': MediaItemType.ARTIST,
                        'album': MediaItemType.ALBUM,
-                       'song': MediaItemType.SONG}
+                       'song': MediaItemType.SONG,
+                       'playlist': MediaItemType.PLAYLIST}
 
         phrase = phrase.lower()
 
@@ -322,6 +320,7 @@ class JellyfinCroft(object):
             artists = []
             albums = []
             songs = []
+            playlists = []
             for result in results:
                 if result.type == MediaItemType.ARTIST:
                     artists.append(result)
@@ -329,9 +328,10 @@ class JellyfinCroft(object):
                     albums.append(result)
                 elif result.type == MediaItemType.SONG:
                     songs.append(result)
+                elif result.type == MediaItemType.PLAYLIST:
+                    playlists.append(result)
                 else:
                     logging.log(20, "Item is not an Artist/Album/Song: " + result.type.value)
-
             if artists:
                 artist_songs = self.get_songs_by_artist(artists[0].id)
                 return 'artist', artist_songs
@@ -342,6 +342,9 @@ class JellyfinCroft(object):
                 # if a song(s) matches pick the 1st
                 song_songs = self.convert_to_playable_songs(songs)
                 return 'song', song_songs
+            elif playlists:
+                playlist_songs = self.get_songs_by_playlist(playlists[0].id)
+                return 'playlist', playlist_songs
             else:
                 return None, None
 

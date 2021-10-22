@@ -114,9 +114,8 @@ class JellyfinClient(PublicJellyfinClient):
     def search(self, query, media_types=[]):
 
         query_params = '?searchTerm={0}'.format(query)
-
         types = None
-        for type in media_types:
+        for type in media_types:   
             types = type + ","
 
         if types:
