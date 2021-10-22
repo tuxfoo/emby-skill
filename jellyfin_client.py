@@ -24,15 +24,17 @@ AUTH_USERNAME_KEY = "username"
 AUTH_PASSWORD_KEY = "Pw"
 MAX_STREAM_BITRATE = "MaxStreamingBitrate=140000000&"
 AUDIO_CODEC = "audioCodec=mp3&"
-TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls"
-CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
+STATIC = "static=true&"
+TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls&"
+#CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
+CONTAINER = "Container=mp3&"
 #JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
-JELLY_ARGS = AUDIO_CODEC + TRANSCODING_SETTING + CONTAINER
+JELLY_ARGS = TRANSCODING_SETTING
 
 
 
 # query param constants
-AUDIO_STREAM = "stream"
+AUDIO_STREAM = "stream.mp3"
 
 
 class PublicJellyfinClient(object):
@@ -134,9 +136,10 @@ class JellyfinClient(PublicJellyfinClient):
         return self._get(instant_item_mix)
 
     def get_song_file(self, song_id):
-        url = '{0}{1}/{2}/{3}?{4}DeviceId=none'\
+        #Include song id again at the end, used to get track meta data with track_info()
+        url = '{0}{1}/{2}/{3}?{4}DeviceId=none&song_id={5}'\
             .format(self.host, SONG_FILE_URL,
-                    song_id, AUDIO_STREAM,JELLY_ARGS)
+                    song_id, AUDIO_STREAM,JELLY_ARGS,song_id)
         self.log.debug("SONG URL: " + url)
         return url
 
@@ -227,7 +230,6 @@ class JellyfinMediaItem(object):
         media_items = []
         for item in items:
             media_items.append(JellyfinMediaItem.from_item(item))
-
         return media_items
 
 

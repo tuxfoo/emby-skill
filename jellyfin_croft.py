@@ -1,10 +1,10 @@
 import logging
 import subprocess
 from enum import Enum
-from random import shuffle
 from collections import defaultdict
 from mycroft.util.parse import match_one
 import json
+import re
 
 try:
     # this import works when installing/running the skill
@@ -35,6 +35,7 @@ class JellyfinCroft(object):
         self.host = JellyfinCroft.normalize_host(host)
         self.log = logging.getLogger(__name__)
         self.version = "UNKNOWN"
+        self.meta = []
         self.set_version()
         if not diagnostic:
             self.client = JellyfinClient(
@@ -81,8 +82,6 @@ class JellyfinCroft(object):
             artist_items = self.search_artist(intent)
             if len(artist_items) > 0:
                 songs = self.get_songs_by_artist(artist_items[0].id)
-                # shuffle by default for songs by artist
-                shuffle(songs)
         elif intent_type == IntentType.ALBUM:
             # return songs by album
             album_items = self.search_album(intent)
@@ -91,7 +90,6 @@ class JellyfinCroft(object):
         elif intent_type == IntentType.PLAYLIST:
             # return songs in playlist
             playlist_items = self.search_playlist(intent)
-            self.log.debug(playlist_items[0].id)
             songs = self.get_songs_by_playlist(playlist_items[0].id)
         return songs
 
@@ -107,6 +105,25 @@ class JellyfinCroft(object):
         songs = []
         songs = self.instant_mix_for_media(media_name)
         return songs
+
+    def set_meta(self, meta_data):
+        if meta_data != []:
+            self.meta = meta_data
+
+    def get_meta(self, track_id):
+        # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
+        track_id = re.search(".*song_id=(.*)", track_id).group(1)
+        self.log.info(track_id)
+        self.log.info(self.meta)
+        for item in self.meta:
+            self.log.info(item)
+            if item['Id'] == track_id:
+                return item
+        return False
+
+    def get_all_meta(self):
+        # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
+        return self.meta
 
     def search_artist(self, artist):
         """
@@ -162,7 +179,8 @@ class JellyfinCroft(object):
         response = self.client.instant_mix(item_id)
         queue_items = JellyfinMediaItem.from_list(
             JellyfinCroft.parse_response(response))
-
+        self.set_meta(
+            JellyfinCroft.parse_response(response))
         song_uris = []
         for item in queue_items:
             song_uris.append(self.client.get_song_file(item.id))
@@ -219,6 +237,11 @@ class JellyfinCroft(object):
     def convert_response_to_playable_songs(self, item_query_response):
         queue_items = JellyfinMediaItem.from_list(
             JellyfinCroft.parse_response(item_query_response))
+        self.set_meta(
+            JellyfinCroft.parse_response(item_query_response))
+        for i in JellyfinCroft.parse_response(item_query_response):
+            for x, y in i.items():
+                self.log.info(x + ":" + str(y))
         return self.convert_to_playable_songs(queue_items)
 
     def convert_to_playable_songs(self, songs):

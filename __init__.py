@@ -5,7 +5,6 @@ from mycroft.util.parse import match_one
 from mycroft.skills.audioservice import AudioService
 from mycroft.api import DeviceApi
 from random import shuffle
-
 from .jellyfin_croft import JellyfinCroft
 
 
@@ -45,7 +44,7 @@ class Jellyfin(CommonPlaySkill):
             if match_type != None:
                 self.log.info('Found match of type: ' + match_type)
 
-                if match_type == 'song' or match_type == 'album':
+                if match_type == 'song' or match_type == 'album' or match_type == 'playlist':
                     match_level = CPSMatchLevel.TITLE
                 elif match_type == 'artist':
                     match_level = CPSMatchLevel.ARTIST
@@ -134,7 +133,8 @@ class Jellyfin(CommonPlaySkill):
     @intent_file_handler('shuffle.intent')
     def handle_shuffle(self, message):
         self.log.info(message.data)
-
+        # Back up meta data
+        track_meta = self.jellyfin_croft.get_all_meta()
         # first thing is connect to jellyfin or bail
         if not self.connect_to_jellyfin():
             self.speak_dialog('configuration_fail')
@@ -144,11 +144,14 @@ class Jellyfin(CommonPlaySkill):
             self.log.info('No songs Returned')
             self.speak_dialog('shuffle_fail')
         else:
+            self.log.info(track_meta)
             # setup audio service and, suffle play
             shuffle(self.songs)
             self.audio_service = AudioService(self.bus)
             self.speak_dialog('shuffle')
             self.audio_service.play(self.songs, message.data['utterance'])
+            # Restore meta data
+            self.jellyfin_croft.set_meta(track_meta)
 
     def speak_playing(self, media):
         data = dict()
@@ -160,12 +163,18 @@ class Jellyfin(CommonPlaySkill):
         track = "Unknown"
         artist = "Unknown"
         if self.audio_service.is_playing:
+            # See if I can get the current track index instead
+            self.log.info(self.audio_service.track_info()['name'])
             track = self.audio_service.track_info()['name']
             artist = self.audio_service.track_info()['artists']
             if artist != [None]:
                 self.speak_dialog('whatsplaying', {'track' : track, 'artist': artist})
             else:
-                self.speak_dialog('notrackinfo')
+                track = self.jellyfin_croft.get_meta(self.audio_service.track_info()['name'])
+                if track != False:
+                    self.speak_dialog('whatsplaying', {'track' : track['Name'], 'artist': track['Artists']})
+                else:
+                    self.speak_dialog('notrackinfo')
         else:
             self.speak_dialog('notplaying')
 
