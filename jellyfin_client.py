@@ -20,19 +20,21 @@ LIMIT = "&Limit="
 SERVER_INFO_URL = "/System/Info"
 SERVER_INFO_PUBLIC_URL = SERVER_INFO_URL + "/Public"
 # auth constants
-AUTH_USERNAME_KEY = "Username"
+AUTH_USERNAME_KEY = "username"
 AUTH_PASSWORD_KEY = "Pw"
 MAX_STREAM_BITRATE = "MaxStreamingBitrate=140000000&"
-AUDIO_CODEC = "AudioCodec=mp3&"
-TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls"
-CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
-JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
+AUDIO_CODEC = "audioCodec=mp3&"
+STATIC = "static=true&"
+TRANSCODING_SETTING = "TranscodingContainer=ts&TranscodingProtocol=hls&"
+#CONTAINER = "Container=opus%2Cmp3%7Cmp3%2Caac%2Cm4a%2Cm4b%7Caac%2Cflac%2Cwebma%2Cwebm%2Cwav%2Cogg&"
+CONTAINER = "Container=mp3&"
+#JELLY_ARGS = CONTAINER + TRANSCODING_SETTING + MAX_STREAM_BITRATE + AUDIO_CODEC
+JELLY_ARGS = TRANSCODING_SETTING
 
 
 
 # query param constants
-AUDIO_STREAM = "universal"
-API_KEY = "api_key="
+AUDIO_STREAM = "stream.mp3"
 
 
 class PublicJellyfinClient(object):
@@ -64,7 +66,7 @@ class JellyfinClient(PublicJellyfinClient):
 
     """
 
-    def __init__(self, host, username, password, api_key, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
+    def __init__(self, host, username, password, device="noDevice", client="NoClient", client_id="1234", version="0.1"):
         """
         Sets up the connection to the Jellyfin server
         :param host:
@@ -75,7 +77,6 @@ class JellyfinClient(PublicJellyfinClient):
         super().__init__(host, device, client, client_id, version)
         self.log = logging.getLogger(__name__)
         self.auth = self._auth_by_user(username, password)
-        self.api_key = api_key
 
     def _auth_by_user(self, username, password):
         """
@@ -101,10 +102,11 @@ class JellyfinClient(PublicJellyfinClient):
                                ", Device="+self.device +\
                                ", DeviceId="+self.client_id +\
                                ", Version="+self.version
+        
         if self.auth and self.auth.user_id:
             media_browser_header = \
                 media_browser_header + ", UserId=" + self.auth.user_id
-        headers = {"X-Emby-Authorization": media_browser_header}
+        headers = {"X-Emby-Authorization": media_browser_header} 
         if self.auth and self.auth.token:
             headers["X-Emby-Token"] = self.auth.token
         return headers
@@ -112,31 +114,32 @@ class JellyfinClient(PublicJellyfinClient):
     def search(self, query, media_types=[]):
 
         query_params = '?searchTerm={0}'.format(query)
-
         types = None
-        for type in media_types:
+        for type in media_types:   
             types = type + ","
 
         if types:
             types = types[:len(types) - 1]
             query_params = query_params + '&IncludeItemTypes={0}'.format(types)
 
+        self.log.debug(SEARCH_HINTS_URL + query_params)
         return self._get(SEARCH_HINTS_URL + query_params)
-        #return self._get(SEARCH_HINTS_URL + query_params)
 
     def instant_mix(self, item_id):
         # userId query param is required even though its not
         # required in swagger
         # https://emby.media/community/index.php?/
         # topic/50760-instant-mix-api-value-cannot-be-null-error/
-        instant_item_mix = '/Items/{0}/InstantMix?userId={1}&Limit=200'\
-            .format(item_id, self.auth.user_id)
+        instant_item_mix = '/Items/{0}/InstantMix?Limit=200'\
+            .format(item_id)
         return self._get(instant_item_mix)
 
     def get_song_file(self, song_id):
-        url = '{0}{1}/{2}/{3}?userId={4}&{5}{6}&{7}DeviceId=none'\
+        #Include song id again at the end, used to get track meta data with track_info()
+        url = '{0}{1}/{2}/{3}?{4}DeviceId=none&song_id={5}'\
             .format(self.host, SONG_FILE_URL,
-                    song_id, AUDIO_STREAM, self.auth.user_id, API_KEY, self.api_key, JELLY_ARGS)
+                    song_id, AUDIO_STREAM,JELLY_ARGS,song_id)
+        self.log.debug("SONG URL: " + url)
         return url
 
     def get_albums_by_artist(self, artist_id):
@@ -154,7 +157,7 @@ class JellyfinClient(PublicJellyfinClient):
         return self._get(url)
 
     def get_songs_by_playlist(self, playlist_id):
-        url = PLAYLIST_URL + "/" + str(playlist_id) + ITEMS_URL
+        url = PLAYLIST_URL + "/" + str(playlist_id) + ITEMS_URL + "?userId=" + self.auth.user_id
         return self._get(url)
 
     def get_all_artists(self):
@@ -226,7 +229,6 @@ class JellyfinMediaItem(object):
         media_items = []
         for item in items:
             media_items.append(JellyfinMediaItem.from_item(item))
-
         return media_items
 
 

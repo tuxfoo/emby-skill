@@ -5,13 +5,23 @@ This skill is a fork of the emby skill that allows audio playback from a Jellyfi
 ## About
 Stream music from your Jellyfin server using Mycroft! Play all songs by an artist or an instant mix of any artist/album/song in your Jellyfin library.
 
+This has been tested on Manjaro using VLC audio backend.
+
 ## Installation
 * mycroft-msm install https://github.com/tuxfoo/jellyfin-skill
+
+## Picroft
+You will need to install vlc, installing just vlc-bin will not work which is really annoying.
+This requirement might change as mycroft supports more audio backends.
+* sudo apt-get install vlc
+
+The common play framework does not work on picroft at the moment as the queries timeout before the request is complete, this is a bug in the playback control skill so for now you will have to use the "from jellyfin" intent, eg; "Play artist Blackmore's Night from jellyfin"
 
 ## Common Play Framework
 This skill supports the common play framework! This means you don't have to specify "Jellyfin" in your intent. For Example
 * "Play The Beatles"
 * "Play artist The Beatles"
+* "Play playlist fun mix"
 * "Play song Hey Jude"
 * "next song"
 * "pause"
@@ -20,22 +30,24 @@ This skill supports the common play framework! This means you don't have to spec
 
 ## From Intent
 If you have other music services you can use the from intent
-* "Play artist Blackmore's Night from jelly fin"
+* "Play artist Blackmore's Night from jellyfin"
+* "Play playlist fun mix from jellyfin"
 
-## OTHER
+## OTHER Features
 You can ask for the track information.
 * "what song is this"
 This feature does not work with all codecs. It works for flacs but not mp3's.
 
+You can shuffle your music
+* "shuffle"
+
 ## Set up
 Go to https://account.mycroft.ai/skills
-Make sure to enter in your jellyfin server details including a API key.
-You can generate and revoke API keys in your jellyfin dashboard
-The API key requirement might be removed in a future version
+Make sure to enter in your jellyfin server URL and login credentials.
 
 ## Credits
-rickyphewitt
-tuxfoo
+rickyphewitt (Emby)
+tuxfoo (Jellyfin Fork)
 
 ## Category
 **Music**
@@ -48,7 +60,7 @@ Always looking for bug fixes, features, translation, and feedback that make the 
 
 ## Troubleshooting
 ### Setup Connection Info
-* Ensure your host, port, api key, username, and password are set at https://account.mycroft.ai/skills
+* Ensure your host, port, username, and password are set at https://account.mycroft.ai/skills
 ### Check Server Connection
 * "Check Jellyfin/Emby"
     * This will attempt to connect then authenticate to your Jellyfin server using the connection info provided above
