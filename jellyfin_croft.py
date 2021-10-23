@@ -122,6 +122,17 @@ class JellyfinCroft(object):
         # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
         return self.meta
 
+    def get_track_list(self):
+        track_list = []
+        for item in self.meta:
+            track = {
+                'artist' : item["Artists"],
+                'album' : item["Album"],
+                'track' : item['Name']
+            }
+            track_list.append(track)
+        return track_list
+
     def search_artist(self, artist):
         """
         Helper method to just search Jellyfin for an artist

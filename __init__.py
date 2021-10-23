@@ -30,13 +30,13 @@ class Jellyfin(CommonPlaySkill):
                             optional data(dict))
                      or None if no match was found.
         """
-
+        # slower devices like raspberry pi's need a bit more time.
+        self.CPS_extend_timeout(10)
         # first thing is connect to jellyfin or bail
         if not self.connect_to_jellyfin():
             return None
 
-        self.log.debug("CPS Phrase:")
-        self.log.debug(phrase)
+        self.log.debug("CPS Phrase: " + phrase)
         match_type, self.songs = self.jellyfin_croft.parse_common_phrase(phrase)
 
         if match_type and self.songs:
@@ -125,8 +125,12 @@ class Jellyfin(CommonPlaySkill):
             self.log.info('No songs Returned')
             self.speak_dialog('play_fail', {"media": intent})
         else:
-            # setup audio service and play
+            # setup audio service and play        
             self.audio_service = AudioService(self.bus)
+            backends = self.audio_service.available_backends()
+            self.log.debug("BACKENDS. VLC Recommended")
+            for key , value in backends.items():
+                self.log.debug(str(key) + " : " + str(value))
             self.speak_playing(intent)
             self.audio_service.play(self.songs, message.data['utterance'])
 
@@ -164,7 +168,6 @@ class Jellyfin(CommonPlaySkill):
         artist = "Unknown"
         if self.audio_service.is_playing:
             # See if I can get the current track index instead
-            self.log.info(self.audio_service.track_info()['name'])
             track = self.audio_service.track_info()['name']
             artist = self.audio_service.track_info()['artists']
             if artist != [None]:
