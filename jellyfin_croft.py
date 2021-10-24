@@ -20,6 +20,7 @@ class IntentType(Enum):
     ALBUM = "album"
     SONG = "song"
     PLAYLIST = "playlist"
+    GENRE = "genre"
 
     @staticmethod
     def from_string(enum_string):
@@ -62,6 +63,8 @@ class JellyfinCroft(object):
             return intent['album'], IntentType.from_string('album')
         elif 'playlist' in intent:
             return intent['playlist'], IntentType.from_string('playlist')
+        elif 'genre' in intent:
+            return intent['genre'], IntentType.from_string('genre')
         else:
             return None
 
@@ -91,6 +94,9 @@ class JellyfinCroft(object):
             # return songs in playlist
             playlist_items = self.search_playlist(intent)
             songs = self.get_songs_by_playlist(playlist_items[0].id)
+        elif intent_type == IntentType.GENRE:
+            genre_items = get_songs_by_genre(intent)
+            songs = self.get_songs_by_genre(genre_items[0].id)
         return songs
 
     def find_songs(self, media_name, media_type=None)->[]:
@@ -164,6 +170,14 @@ class JellyfinCroft(object):
         :return:
         """
         return self.search(artist, [MediaItemType.ALBUM.value])
+
+    def search_genre(self, artist):
+        """
+        Helper method to just search Jellyfin for an album
+        :param album:
+        :return:
+        """
+        return self.search(artist, [MediaItemType.GENRE.value])
 
     def search_song(self, song):
         """
@@ -353,16 +367,17 @@ class JellyfinCroft(object):
             albums = []
             songs = []
             playlists = []
+            genre = []
             for result in results:
                 if result.type == MediaItemType.ARTIST:
                     artists.append(result)
                 elif result.type == MediaItemType.ALBUM:
                     albums.append(result)
-                elif result.type == MediaItemType.SONG:
-                    songs.append(result)
                 elif result.type == MediaItemType.PLAYLIST:
                     playlists.append(result)
                 elif result.type == MediaItemType.GENRE:
+                    genre.append(result)
+                elif result.type == MediaItemType.SONG:
                     songs.append(result)
                 else:
                     logging.log(20, "Item is not an Artist/Album/Song: " + result.type.value)
@@ -372,6 +387,9 @@ class JellyfinCroft(object):
             elif albums:
                 album_songs = self.get_songs_by_album(albums[0].id)
                 return 'album', album_songs
+            elif genre:
+                genre_songs = self.get_songs_by_genre(genre[0].id)
+                return 'genre', genre_songs
             elif songs:
                 # if a song(s) matches pick the 1st
                 song_songs = self.convert_to_playable_songs(songs)

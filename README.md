@@ -23,6 +23,7 @@ This skill supports the common play framework! This means you don't have to spec
 * "Play artist The Beatles"
 * "Play playlist fun mix"
 * "Play song Hey Jude"
+* "Play heavy metal"
 * "next song"
 * "pause"
 * "stop"
@@ -32,6 +33,7 @@ This skill supports the common play framework! This means you don't have to spec
 If you have other music services you can use the from intent
 * "Play artist Blackmore's Night from jellyfin"
 * "Play playlist fun mix from jellyfin"
+* "Play rock from jellyfin"
 
 ## OTHER Features
 You can ask for the track information.
