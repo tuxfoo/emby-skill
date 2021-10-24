@@ -12,9 +12,11 @@ SONG_FILE_URL = "/Audio"
 DOWNLOAD_URL = "/Download"
 ITEMS_ARTIST_KEY = "ArtistIds"
 ITEMS_PARENT_ID_KEY = "ParentId"
+ITEMS_GENRE_KEY =  "GenreIds="
 ITEMS_URL = "/Items"
 ITEMS_ALBUMS_URL = ITEMS_URL + "?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=MusicAlbum&Recursive=true&" + ITEMS_ARTIST_KEY + "="
 ITEMS_SONGS_BY_ARTIST_URL = ITEMS_URL + "?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Audio&Recursive=true&" + ITEMS_ARTIST_KEY + "="
+ITEMS_SONGS_BY_GENRE_URL = ITEMS_URL + "?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Audio&Recursive=true&" + ITEMS_GENRE_KEY
 ITEMS_SONGS_BY_ALBUM_URL = ITEMS_URL + "?SortBy=IndexNumber&" + ITEMS_PARENT_ID_KEY + "="
 LIMIT = "&Limit="
 SERVER_INFO_URL = "/System/Info"
@@ -142,6 +144,15 @@ class JellyfinClient(PublicJellyfinClient):
         self.log.debug("SONG URL: " + url)
         return url
 
+    def add_to_playlist(self, song_id, playlist_id):
+        song = "&ids=" + song_id
+        url = PLAYLIST_URL + "/" + str(playlist_id) + ITEMS_URL + "?userId=" + self.auth.user_id + song
+        response = self._post(url, self.get_headers())
+        if response.status_code == 204:
+            return True
+        else:
+            return False
+
     def get_albums_by_artist(self, artist_id):
         url = "/Users/" + self.auth.user_id + ITEMS_ALBUMS_URL + str(artist_id)
         return self._get(url)
@@ -152,6 +163,12 @@ class JellyfinClient(PublicJellyfinClient):
 
     def get_songs_by_artist(self, artist_id, limit=None):
         url = "/Users/" + self.auth.user_id + ITEMS_SONGS_BY_ARTIST_URL + str(artist_id)
+        if limit:
+            url = url + LIMIT+str(limit)
+        return self._get(url)
+
+    def get_songs_by_genre(self, genre_id, limit=None):
+        url = "/Users/" + self.auth.user_id + ITEMS_SONGS_BY_GENRE_URL+ str(genre_id)
         if limit:
             url = url + LIMIT+str(limit)
         return self._get(url)
@@ -238,6 +255,7 @@ class MediaItemType(Enum):
     SONG = "Audio"
     OTHER = "Other"
     PLAYLIST = "Playlist"
+    GENRE = "MusicGenre"
 
     @staticmethod
     def from_string(enum_string):

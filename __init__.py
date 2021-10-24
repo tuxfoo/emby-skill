@@ -44,7 +44,7 @@ class Jellyfin(CommonPlaySkill):
             if match_type != None:
                 self.log.info('Found match of type: ' + match_type)
 
-                if match_type == 'song' or match_type == 'album' or match_type == 'playlist':
+                if match_type == 'song' or match_type == 'album' or match_type == 'playlist' or match_type == 'genre':
                     match_level = CPSMatchLevel.TITLE
                 elif match_type == 'artist':
                     match_level = CPSMatchLevel.ARTIST
@@ -71,11 +71,12 @@ class Jellyfin(CommonPlaySkill):
 
             Called by the playback control skill to start playback if the
             skill is selected (has the best match level)
-        """
+        """    
         # setup audio service
         self.audio_service = AudioService(self.bus)
         self.speak_playing(phrase)
         self.audio_service.play(data[phrase])
+        self.CPS_send_tracklist(self.jellyfin_croft.get_track_list())
 
     def connect_to_jellyfin(self, diagnostic=False):
         """
@@ -181,6 +182,17 @@ class Jellyfin(CommonPlaySkill):
         else:
             self.speak_dialog('notplaying')
 
+    @intent_file_handler('playlist.intent')
+    def handle_playlist_add(self, message):
+        if self.audio_service.is_playing:
+            track = self.audio_service.track_info()['name']
+            track_name = self.jellyfin_croft.get_meta(track)
+            add_to = self.jellyfin_croft.add_to_playlist(track, message.data.get('playlist_name'))
+            if add_to == True:
+                self.speak_dialog('playlist', {'media' : track_name['Name'], 'playlist_name' : message.data.get('playlist_name')})
+                return
+        self.speak_dialog('playlist_fail', {'media' : track_name['Name'], 'playlist_name' : message.data.get('playlist_name')})
+        return
 
     @intent_file_handler('diagnostic.intent')
     def handle_diagnostic(self, message):

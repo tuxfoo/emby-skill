@@ -36,10 +36,13 @@ If you have other music services you can use the from intent
 ## OTHER Features
 You can ask for the track information.
 * "what song is this"
-This feature does not work with all codecs. It works for flacs but not mp3's.
 
 You can shuffle your music
 * "shuffle"
+
+You can add the currently playing song to a playlist(it has to exist)
+* "add to (playlist name)"
+* "add to fun mix"
 
 ## Set up
 Go to https://account.mycroft.ai/skills
