@@ -20,6 +20,7 @@ class IntentType(Enum):
     ALBUM = "album"
     SONG = "song"
     PLAYLIST = "playlist"
+    GENRE = "genre"
 
     @staticmethod
     def from_string(enum_string):
@@ -62,6 +63,8 @@ class JellyfinCroft(object):
             return intent['album'], IntentType.from_string('album')
         elif 'playlist' in intent:
             return intent['playlist'], IntentType.from_string('playlist')
+        elif 'genre' in intent:
+            return intent['genre'], IntentType.from_string('genre')
         else:
             return None
 
@@ -91,6 +94,9 @@ class JellyfinCroft(object):
             # return songs in playlist
             playlist_items = self.search_playlist(intent)
             songs = self.get_songs_by_playlist(playlist_items[0].id)
+        elif intent_type == IntentType.GENRE:
+            genre_items = get_songs_by_genre(intent)
+            songs = self.get_songs_by_genre(genre_items[0].id)
         return songs
 
     def find_songs(self, media_name, media_type=None)->[]:
@@ -112,14 +118,13 @@ class JellyfinCroft(object):
 
     def get_meta(self, track_id):
         # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
-        track_id = re.search(".*song_id=(.*)", track_id).group(1)
+        track_id = self.track_id_from_url(track_id)
         for item in self.meta:
             if item['Id'] == track_id:
                 return item
         return False
 
     def get_all_meta(self):
-        # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
         return self.meta
 
     def get_track_list(self):
@@ -131,8 +136,25 @@ class JellyfinCroft(object):
                 'track' : item['Name']
             }
             track_list.append(track)
+            self.log.info(track)
         return track_list
 
+    def track_id_from_url(self, url):
+         # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
+        track_id = re.search(".*song_id=(.*)", url).group(1)
+        return track_id
+
+    def add_to_playlist(self, track_id, playlist):
+        playlist = self.search_playlist(playlist)
+        if len(playlist) > 0:
+            song_id = self.track_id_from_url(track_id)
+            self.log.info("playlist id:")
+            self.log.info(playlist[0].id)
+            add_to = self.client.add_to_playlist(song_id, playlist[0].id)
+            return add_to
+        else:
+            return False
+            
     def search_artist(self, artist):
         """
         Helper method to just search Jellyfin for an artist
@@ -148,6 +170,14 @@ class JellyfinCroft(object):
         :return:
         """
         return self.search(artist, [MediaItemType.ALBUM.value])
+
+    def search_genre(self, artist):
+        """
+        Helper method to just search Jellyfin for an album
+        :param album:
+        :return:
+        """
+        return self.search(artist, [MediaItemType.GENRE.value])
 
     def search_song(self, song):
         """
@@ -228,6 +258,10 @@ class JellyfinCroft(object):
         response = self.client.get_songs_by_artist(artist_id)
         return self.convert_response_to_playable_songs(response)
 
+    def get_songs_by_genre(self, genre_id):
+        response = self.client.get_songs_by_genre(genre_id)
+        return self.convert_response_to_playable_songs(response)
+
     def get_all_artists(self):
         return self.client.get_all_artists()
 
@@ -284,7 +318,8 @@ class JellyfinCroft(object):
         media_types = {'artist': MediaItemType.ARTIST,
                        'album': MediaItemType.ALBUM,
                        'song': MediaItemType.SONG,
-                       'playlist': MediaItemType.PLAYLIST}
+                       'playlist': MediaItemType.PLAYLIST,
+                       'genre' : MediaItemType.GENRE}
 
         phrase = phrase.lower()
 
@@ -332,15 +367,18 @@ class JellyfinCroft(object):
             albums = []
             songs = []
             playlists = []
+            genre = []
             for result in results:
                 if result.type == MediaItemType.ARTIST:
                     artists.append(result)
                 elif result.type == MediaItemType.ALBUM:
                     albums.append(result)
-                elif result.type == MediaItemType.SONG:
-                    songs.append(result)
                 elif result.type == MediaItemType.PLAYLIST:
                     playlists.append(result)
+                elif result.type == MediaItemType.GENRE:
+                    genre.append(result)
+                elif result.type == MediaItemType.SONG:
+                    songs.append(result)
                 else:
                     logging.log(20, "Item is not an Artist/Album/Song: " + result.type.value)
             if artists:
@@ -349,6 +387,9 @@ class JellyfinCroft(object):
             elif albums:
                 album_songs = self.get_songs_by_album(albums[0].id)
                 return 'album', album_songs
+            elif genre:
+                genre_songs = self.get_songs_by_genre(genre[0].id)
+                return 'genre', genre_songs
             elif songs:
                 # if a song(s) matches pick the 1st
                 song_songs = self.convert_to_playable_songs(songs)
