@@ -24,8 +24,8 @@ This skill supports the common play framework! This means you don't have to spec
 * msm install https://github.com/ghostbuster84/emby-skill
 
 ## Credits 
-rickyphewitt
-ghostbuster84
+* rickyphewitt - EMBY-Skill
+* ghostbuster84 - Added Features
 
 ## Category
 **Music**
