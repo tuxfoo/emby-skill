@@ -1,7 +1,6 @@
 import logging
 import subprocess
 from enum import Enum
-from random import shuffle
 from collections import defaultdict
 import json
 
