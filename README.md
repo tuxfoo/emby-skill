@@ -12,14 +12,10 @@ Stream music from your Emby server using Mycroft! Play all songs by an artist or
 * "Play Playlist Rockin Tunes From Emby"
 * "Play Song Stitch From Emby"
 
-## Special Features - en_us only
+## Special Features - en_us only - WORK IN PROGRESS
 You can shuffle your music
 
 * "shuffle"
-You can add the currently playing song to a playlist(it has to exist)
-
-* "add to (playlist name)"
-* "add to fun mix"
 ## Common Play Framework
 This skill supports the common play framework! This means you don't have to specify "Emby" in your intent. For Example
 * "Play The Beatles"
