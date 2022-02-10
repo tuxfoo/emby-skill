@@ -111,6 +111,49 @@ class EmbyCroft(object):
         songs = []
         songs = self.instant_mix_for_media(media_name)
         return songs
+    
+    def set_meta(self, meta_data):
+        if meta_data != []:
+            self.meta = meta_data
+
+    def get_meta(self, track_id):
+        # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
+        track_id = self.track_id_from_url(track_id)
+        for item in self.meta:
+            if item['Id'] == track_id:
+                return item
+        return False
+
+    def get_all_meta(self):
+        return self.meta
+
+    def get_track_list(self):
+        track_list = []
+        for item in self.meta:
+            track = {
+                'artist' : item["Artists"],
+                'album' : item["Album"],
+                'track' : item['Name']
+            }
+            track_list.append(track)
+            self.log.info(track)
+        return track_list
+
+    def track_id_from_url(self, url):
+         # stream?static=true&DeviceId=none&song_id=e67feaa1a1fac274d87e2442a9b5d1e5
+        track_id = re.search(".*song_id=(.*)", url).group(1)
+        return track_id
+
+    def add_to_playlist(self, track_id, playlist):
+        playlist = self.search_playlist(playlist)
+        if len(playlist) > 0:
+            song_id = self.track_id_from_url(track_id)
+            self.log.info("playlist id:")
+            self.log.info(playlist[0].id)
+            add_to = self.client.add_to_playlist(song_id, playlist[0].id)
+            return add_to
+        else:
+            return False
 
     def search_artist(self, artist):
         """
