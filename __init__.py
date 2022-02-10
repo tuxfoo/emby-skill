@@ -86,7 +86,7 @@ class Emby(CommonPlaySkill):
     def handle_shuffle(self, message):
         self.log.info(message.data)
         # Back up meta data
-        track_meta = self.jellyfin_croft.get_all_meta()
+        track_meta = self.emby_croft.get_all_meta()
         # first thing is connect to emby or bail
         if not self.connect_to_emby():
             self.speak_dialog('configuration_fail')
