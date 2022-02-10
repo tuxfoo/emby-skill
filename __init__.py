@@ -3,7 +3,7 @@ from mycroft import intent_file_handler
 from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
 from mycroft.skills.audioservice import AudioService
 from mycroft.api import DeviceApi
-
+from random import shuffle
 from .emby_croft import EmbyCroft
 
 
@@ -82,6 +82,29 @@ class Emby(CommonPlaySkill):
 
         self.speak_dialog('diagnostic')
 
+        @intent_file_handler('shuffle.intent')
+    def handle_shuffle(self, message):
+        self.log.info(message.data)
+        # Back up meta data
+        track_meta = self.jellyfin_croft.get_all_meta()
+        # first thing is connect to jellyfin or bail
+        if not self.connect_to_jellyfin():
+            self.speak_dialog('configuration_fail')
+            return
+
+        if not self.songs or len(self.songs) < 1:
+            self.log.info('No songs Returned')
+            self.speak_dialog('shuffle_fail')
+        else:
+            self.log.info(track_meta)
+            # setup audio service and, suffle play
+            shuffle(self.songs)
+            self.audio_service = AudioService(self.bus)
+            self.speak_dialog('shuffle')
+            self.audio_service.play(self.songs, message.data['utterance'])
+            # Restore meta data
+            self.jellyfin_croft.set_meta(track_meta)
+            
     def stop(self):
         pass
 
@@ -135,6 +158,7 @@ class Emby(CommonPlaySkill):
                 songs_logged = songs_logged + 1
                 if songs_logged >= max_songs_to_log:
                     break
+                   
 
             return phrase, match_level, song_data
         else:
