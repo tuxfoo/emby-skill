@@ -82,13 +82,13 @@ class Emby(CommonPlaySkill):
 
         self.speak_dialog('diagnostic')
 
-        @intent_file_handler('shuffle.intent')
+    @intent_file_handler('shuffle.intent')
     def handle_shuffle(self, message):
         self.log.info(message.data)
         # Back up meta data
         track_meta = self.jellyfin_croft.get_all_meta()
-        # first thing is connect to jellyfin or bail
-        if not self.connect_to_jellyfin():
+        # first thing is connect to emby or bail
+        if not self.connect_to_emby():
             self.speak_dialog('configuration_fail')
             return
 
@@ -103,7 +103,7 @@ class Emby(CommonPlaySkill):
             self.speak_dialog('shuffle')
             self.audio_service.play(self.songs, message.data['utterance'])
             # Restore meta data
-            self.jellyfin_croft.set_meta(track_meta)
+            self.emby_croft.set_meta(track_meta)
             
     def stop(self):
         pass
