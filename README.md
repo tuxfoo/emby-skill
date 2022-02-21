@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.com/rickyphewitt/emby-skill.svg?branch=master)](https://travis-ci.com/rickyphewitt/emby-skill)
 # Emby
 This skill allows audio playback from an Emby server
 
