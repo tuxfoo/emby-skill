@@ -7,7 +7,7 @@ skillMetadata:
     - name: hostname
       type: text
       label: Url
-      value: 'http://emby'
+      value: 'http://jellyfin'
     - name: port
       type: number
       label: Port
@@ -24,4 +24,3 @@ skillMetadata:
       type: password
       label: Password
       value: ''
-

@@ -1,0 +1,8 @@
+{
+    "expected_dialog": "jellyfin",
+    "intent": {
+        "album": "anyAlbumHere"
+    },
+    "intent_type": "jellyfin.intent",
+    "utterance": "play album anyAlbumHere from jelly fin"
+}

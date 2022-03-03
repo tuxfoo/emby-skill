@@ -1,0 +1,8 @@
+{
+    "expected_dialog": "jellyfin",
+    "intent": {
+        "artist": "from first to last"
+    },
+    "intent_type": "jellyfin.intent",
+    "utterance": "play artist from first to last from jelly fin"
+}
