@@ -1,3 +1,4 @@
-check (emby|mb|mv|nv|emily) connection
-run diagnostic (emby|mb|mv|nv|emily)
-check (emby|mb|mv|nv|emily)
+check (emby|mb|mv|nv|emily|jelly fin|jelly fan|jelly fen|jellyfin) connection
+run diagnostic (emby|mb|mv|nv|emily|jelly fin|jelly fan|jelly fen|jellyfin)
+check (emby|mb|mv|nv|emily|jelly fin|jelly fan|jelly fen|jellyfin)
+test (emby|mb|mv|nv|emily|jelly fin|jelly fan|jelly fen|jellyfin) connection

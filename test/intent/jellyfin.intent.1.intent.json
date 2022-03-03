@@ -1,0 +1,8 @@
+{
+    "expected_dialog": "jellyfin",
+    "intent": {
+        "media": "dance gavin dance"
+    },
+    "intent_type": "jellyfin.intent",
+    "utterance": "play dance gavin dance from jelly fin"
+}

@@ -1,0 +1,8 @@
+{
+    "expected_dialog": "jellyfin",
+    "intent": {
+        "artist": "a day to remember"
+    },
+    "intent_type": "jellyfin.intent",
+    "utterance": "play artist a day to remember from jelly fin"
+}

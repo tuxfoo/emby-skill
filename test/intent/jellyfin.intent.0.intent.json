@@ -1,0 +1,8 @@
+{
+    "expected_dialog": "jellyfin",
+    "intent": {
+        "media": "thrice"
+    },
+    "intent_type": "jellyfin.intent",
+    "utterance": "play thrice from jelly fin"
+}
