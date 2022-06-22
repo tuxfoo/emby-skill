@@ -182,18 +182,6 @@ class Jellyfin(CommonPlaySkill):
         else:
             self.speak_dialog('notplaying')
 
-    @intent_file_handler('playlist.intent')
-    def handle_playlist_add(self, message):
-        if self.audio_service.is_playing:
-            track = self.audio_service.track_info()['name']
-            track_name = self.jellyfin_croft.get_meta(track)
-            add_to = self.jellyfin_croft.add_to_playlist(track, message.data.get('playlist_name'))
-            if add_to == True:
-                self.speak_dialog('playlist', {'media' : track_name['Name'], 'playlist_name' : message.data.get('playlist_name')})
-                return
-        self.speak_dialog('playlist_fail', {'media' : track_name['Name'], 'playlist_name' : message.data.get('playlist_name')})
-        return
-
     @intent_file_handler('diagnostic.intent')
     def handle_diagnostic(self, message):
 
