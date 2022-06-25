@@ -1,4 +1,9 @@
 [![Build Status](https://travis-ci.com/tuxfoo/jellyfin-skill.svg?branch=master)](https://github.com/tuxfoo/jellyfin-skill)
+# Find 
+
+## NOTE: At the moment the latest version of this skill is maintained by some one else. I will be adding features and fixes to that instead you can find it here:
+[https://github.com/LostLightProjects/jellyfin-skill](https://github.com/LostLightProjects/jellyfin-skill)
+
 # Jellyfin
 This skill is a fork of the emby skill that allows audio playback from a Jellyfin server
 
